@@ -5,6 +5,14 @@
 イベントに関連付けたり、タグを付けたりできる
 =end
 class Pluggaloid::Handler < Pluggaloid::Identity
+  unless const_defined?(:Mutex)
+    class Mutex
+      def synchronize
+        yield
+      end
+    end
+  end
+
   Lock = Mutex.new
   attr_reader :tags
 
