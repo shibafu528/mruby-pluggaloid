@@ -1,4 +1,21 @@
-# Pluggaloid
+# Pluggaloid for mruby
+
+[pluggaloid](https://github.com/toshia/pluggaloid) gemをmrubyにポーティングしたものです。
+
+## Installation
+
+Add conf.gem line to your `build_config.rb`:
+
+```ruby
+MRuby::Build.new do |conf|
+
+    # ... (snip) ...
+
+    conf.gem :github => 'shibafu528/mruby-pluggaloid', :branch => 'mruby'
+end
+```
+
+## Original description
 
 mikutterのプラグイン機構です。
 登録したプラグイン同士がイベントを使って通信できるようになります。
