@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-require 'instance_storage'
-require 'delayer'
-require 'securerandom'
-require 'set'
+#require 'instance_storage'
+#require 'delayer'
+#require 'securerandom'
+#require 'set'
 
 # プラグインの本体。
 # DSLを提供し、イベントやフィルタの管理をする

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-require 'securerandom'
-require 'set'
+#require 'securerandom'
+#require 'set'
 
 class Pluggaloid::Listener < Pluggaloid::Handler
   # プラグインコールバックをこれ以上実行しない。

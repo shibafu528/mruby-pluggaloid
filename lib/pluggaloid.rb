@@ -1,14 +1,14 @@
-require "pluggaloid/version"
-require "pluggaloid/plugin"
-require 'pluggaloid/event'
-require "pluggaloid/identity"
-require "pluggaloid/handler"
-require 'pluggaloid/listener'
-require 'pluggaloid/filter'
-require "pluggaloid/handler_tag"
-require 'pluggaloid/error'
+#require "pluggaloid/version"
+#require "pluggaloid/plugin"
+#require 'pluggaloid/event'
+#require "pluggaloid/identity"
+#require "pluggaloid/handler"
+#require 'pluggaloid/listener'
+#require 'pluggaloid/filter'
+#require "pluggaloid/handler_tag"
+#require 'pluggaloid/error'
 
-require 'delayer'
+#require 'delayer'
 
 module Pluggaloid
   VM = Struct.new(*%i<Delayer Plugin Event Listener Filter HandlerTag>)

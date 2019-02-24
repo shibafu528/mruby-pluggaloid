@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-require 'securerandom'
+#require 'securerandom'
 
 =begin rdoc
 = リスナをまとめて管理するプラグイン
