@@ -18,12 +18,15 @@ module Pluggaloid
         @vm ||= begin
                   raise Pluggaloid::NoDefaultDelayerError, "Default Delayer was not set." unless Delayer.default
                   vm = Pluggaloid::VM.new(
-                    Delayer.default,
-                    self,
-                    Pluggaloid::Event,
-                    Pluggaloid::Listener,
-                    Pluggaloid::Filter,
-                    Pluggaloid::HandlerTag)
+                    Delayer: Delayer.default,
+                    Plugin: self,
+                    Event: Pluggaloid::Event,
+                    Listener: Pluggaloid::Listener,
+                    Filter: Pluggaloid::Filter,
+                    HandlerTag: Pluggaloid::HandlerTag,
+                    Subscriber: Pluggaloid::Subscriber,
+                    StreamGenerator: Pluggaloid::StreamGenerator
+                  )
                   vm.Event.vm = vm end end
 
       # プラグインのインスタンスを返す。
@@ -61,6 +64,17 @@ module Pluggaloid
       # フィルタされた引数の配列
       def filtering(event_name, *args)
         vm.Event[event_name].filtering(*args) end
+
+      # フィルタ _event_name_ を実行し、defeventでPluggaloid::COLLECTと
+      # 宣言されている引数の結果を列挙するEnumeratorを返す
+      # ==== Args
+      # [event_name] イベント名(String | Symbol)
+      # [*specs] Pluggaloid::COLLECT以外の引数
+      # ==== Return
+      # [Enumerator]
+      def collect(event_name, *specs)
+        vm.Event[event_name].collect(*specs)
+      end
 
       # 互換性のため
       def uninstall(plugin_name)
@@ -114,7 +128,7 @@ module Pluggaloid
 
     # イベントフィルタを新しく登録する
     # ==== Args
-    # [event] 監視するEventのインスタンス
+    # [event_name] イベント名(String | Symbol)
     # [name:] 名前(String | nil)
     # [slug:] フィルタスラッグ(Symbol | nil)
     # [tags:] Pluggaloid::HandlerTag|Array フィルタのタグ
@@ -125,6 +139,56 @@ module Pluggaloid
       result = vm.Filter.new(vm.Event[event_name], **kwrest, &callback)
       @filters << result
       result end
+
+    def generate(event_name, *specs, **kwrest, &block)
+      vm.StreamGenerator.new(vm.Event[event_name], *specs, plugin: self, **kwrest, &block)
+    end
+
+    def subscribe(event_name, *specs, **kwrest, &block)
+      if block
+        result = vm.Subscriber.new(vm.Event[event_name], *specs, **kwrest, &block)
+        @events << result
+        result
+      else
+        Stream.new(
+          Enumerator.new do |yielder|
+            @events << vm.Subscriber.new(vm.Event[event_name], *specs, **kwrest) do |stream|
+              stream.each(&yielder.method(:<<))
+            end
+          end.lazy
+        )
+      end
+    end
+
+    def subscribe?(event_name, *specs)
+      vm.Event[event_name].subscribe?(*specs)
+    end
+
+    def collect(event_name, *specs)
+      self.class.collect(event_name, *specs)
+    end
+
+    # 追加・削除がフィルタに反映されるコレクションオブジェクトを作成する。
+    # 同時に _event_name_ にフィルタが定義され、フィルタが呼ばれると
+    # その時点のコレクションオブジェクトの内容を全て列挙する。
+    # フィルタと対になるコレクションオブジェクトは、 _&block_ の引数として渡される。
+    # ==== Args
+    # [event_name] イベント名(String | Symbol)
+    # [*specs] Pluggaloid::COLLECT以外の引数
+    # [&block] コレクションオブジェクトを受け取って一度だけ実行されるblock
+    # ==== Return
+    # _&block_ の戻り値
+    def collection(event_name, *specs, &block)
+      event = vm.Event[event_name]
+      mutation = Pluggaloid::Collection.new(event, *specs)
+      add_event_filter(event_name) do |*args|
+        if mutation.argument_hash_same?(args)
+          mutation.values.each(&args[event.collect_index].method(:<<))
+        end
+        args
+      end
+      block.call(mutation)
+    end
 
     # このプラグインのHandlerTagを作る。
     # ブロックが渡された場合は、ブロックの中を実行し、ブロックの中で定義された
@@ -176,7 +240,6 @@ module Pluggaloid
       end
     end
 
-
     # イベントを削除する。
     # 引数は、Pluggaloid::ListenerかPluggaloid::Filterのみ(on_*やfilter_*の戻り値)。
     # 互換性のため、二つ引数がある場合は第一引数は無視され、第二引数が使われる。
@@ -187,7 +250,7 @@ module Pluggaloid
     def detach(*args)
       listener = args.last
       case listener
-      when vm.Listener
+      when vm.Listener, vm.Subscriber
         @events.delete(listener)
         listener.detach
       when vm.Filter
@@ -217,7 +280,8 @@ module Pluggaloid
     # [event_name] イベント名
     # [options] イベントの定義
     def defevent(event_name, options={})
-      vm.Event[event_name].options.merge!({plugin: self}.merge(options)) end
+      vm.Event[event_name].defevent({ plugin: self, **options })
+    end
 
     # DSLメソッドを新しく追加する。
     # 追加されたメソッドは呼ぶと &callback が呼ばれ、その戻り値が返される。引数も順番通り全て &callbackに渡される
@@ -253,6 +317,8 @@ module Pluggaloid
       when method_name.start_with?('filter')
         event_name = method_name[(method_name[6] == '_' ? 7 : 6)..method_name.size]
         add_event_filter(event_name.to_sym, **kwrest, &proc)
+      else
+        super
       end
     end
 

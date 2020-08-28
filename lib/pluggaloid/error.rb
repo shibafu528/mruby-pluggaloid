@@ -11,4 +11,10 @@ module Pluggaloid
   class NoDefaultDelayerError < Error; end
 
   class DuplicateListenerSlugError < Error; end
+
+  class UndefinedStreamIndexError < Error; end
+
+  class UndefinedCollectionIndexError < Error; end
+
+  class NoReceiverError < Error; end
 end
