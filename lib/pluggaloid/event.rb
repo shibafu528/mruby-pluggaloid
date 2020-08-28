@@ -96,7 +96,7 @@ class Pluggaloid::Event
         if @listeners.map(&:slug).include?(listener.slug)
           raise Pluggaloid::DuplicateListenerSlugError, "Listener slug #{listener.slug} already exists."
         end
-        @listeners = [*@listeners, listener].freeze
+        @listeners = [*@listeners.dup, listener].freeze
       end
       @stream_generators.values.each do |generators|
         generators.each(&:on_subscribed)
@@ -163,7 +163,7 @@ class Pluggaloid::Event
   def add_filter(event_filter)
     unless event_filter.is_a? Pluggaloid::Filter
       raise Pluggaloid::ArgumentError, "First argument must be Pluggaloid::Filter, but given #{event_filter.class}." end
-    @filters = [*@filters, event_filter].freeze
+    @filters = [*@filters.dup, event_filter].freeze
     self
   end
 
