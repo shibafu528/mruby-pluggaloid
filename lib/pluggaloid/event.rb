@@ -190,14 +190,14 @@ class Pluggaloid::Event
   end
 
   def stream_index
-    unless defined?(@stream_index)
+    unless instance_variable_defined?(:@stream_index)
       @stream_index = self.prototype&.index(Pluggaloid::STREAM)
     end
     @stream_index
   end
 
   def collect_index
-    unless defined?(@collect_index)
+    unless instance_variable_defined?(:@collect_index)
       @collect_index = self.prototype&.index(Pluggaloid::COLLECT)
     end
     @collect_index

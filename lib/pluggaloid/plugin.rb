@@ -88,7 +88,7 @@ module Pluggaloid
 
       alias __clear_aF4e__ clear!
       def clear!
-        if defined?(@vm) and @vm
+        if instance_variable_defined?(:@vm) and @vm
           @vm.Event.clear!
           @vm = nil end
         __clear_aF4e__() end
