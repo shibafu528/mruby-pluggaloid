@@ -15,7 +15,7 @@
 #require 'delayer'
 
 module Pluggaloid
-  VM = Struct.new(*%i<Delayer Plugin Event Listener Filter HandlerTag Subscriber StreamGenerator>, keyword_init: true)
+  VM = Struct.new(*%i<Delayer Plugin Event Listener Filter HandlerTag Subscriber StreamGenerator>)
 
   class PrototypeStream; end
   class PrototypeCollect; end
@@ -23,14 +23,14 @@ module Pluggaloid
   COLLECT = PrototypeCollect.new.freeze
 
   def self.new(delayer)
-    vm = VM.new(Delayer: delayer,
-                Plugin: Class.new(Plugin),
-                Event: Class.new(Event),
-                Listener: Class.new(Listener),
-                Filter: Class.new(Filter),
-                HandlerTag: Class.new(HandlerTag),
-                Subscriber: Class.new(Subscriber),
-                StreamGenerator: Class.new(StreamGenerator))
+    vm = VM.new(delayer,
+                Class.new(Plugin),
+                Class.new(Event),
+                Class.new(Listener),
+                Class.new(Filter),
+                Class.new(HandlerTag),
+                Class.new(Subscriber),
+                Class.new(StreamGenerator))
     vm.Plugin.vm = vm.Event.vm = vm
   end
 end
