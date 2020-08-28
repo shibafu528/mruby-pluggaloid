@@ -11,7 +11,7 @@ module Pluggaloid
     def throttle(sec)
       throttling = 0
       @enumerator.select do |item|
-        r0 = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+        r0 = Delayer.ticks
         if throttling <= r0
           throttling = r0 + sec
         end
