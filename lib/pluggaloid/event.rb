@@ -1,6 +1,14 @@
 # -*- coding: utf-8 -*-
 
 class Pluggaloid::Event
+  unless const_defined?(:Mutex)
+    class Mutex
+      def synchronize
+        yield
+      end
+    end
+  end
+
   Lock = Mutex.new
 
   include InstanceStorage
