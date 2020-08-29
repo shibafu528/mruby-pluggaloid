@@ -18,14 +18,14 @@ module Pluggaloid
         @vm ||= begin
                   raise Pluggaloid::NoDefaultDelayerError, "Default Delayer was not set." unless Delayer.default
                   vm = Pluggaloid::VM.new(
-                    Delayer: Delayer.default,
-                    Plugin: self,
-                    Event: Pluggaloid::Event,
-                    Listener: Pluggaloid::Listener,
-                    Filter: Pluggaloid::Filter,
-                    HandlerTag: Pluggaloid::HandlerTag,
-                    Subscriber: Pluggaloid::Subscriber,
-                    StreamGenerator: Pluggaloid::StreamGenerator
+                    Delayer.default,
+                    self,
+                    Pluggaloid::Event,
+                    Pluggaloid::Listener,
+                    Pluggaloid::Filter,
+                    Pluggaloid::HandlerTag,
+                    Pluggaloid::Subscriber,
+                    Pluggaloid::StreamGenerator
                   )
                   vm.Event.vm = vm end end
 
